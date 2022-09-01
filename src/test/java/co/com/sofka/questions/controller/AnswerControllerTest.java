@@ -28,7 +28,7 @@ class AnswerControllerTest {
         AnswerController router = new AnswerController(answerService);
 
         this.client = WebTestClient.bindToController(router)
-                .configureClient().baseUrl("/answer/crear").build();
+                .configureClient().baseUrl("/answer").build();
     }
 
     @Test
@@ -47,7 +47,7 @@ class AnswerControllerTest {
 
         when(answerService.saveAnswer(any(AnswerDTO.class))).thenReturn(Mono.just(answerDTO));
 
-        this.client.post().bodyValue(answerDTO)
+        this.client.post().uri("/crear").bodyValue(answerDTO)
                 .exchange()
                 .expectStatus()
                 .isCreated()
@@ -55,21 +55,7 @@ class AnswerControllerTest {
                 .isEqualTo(answerDTO);
     }
 
-    @Test
-    void findById() {
-
-        AnswerDTO answerDTO = AnswerDTO.builder()
-                .id("1")
-                .answer("Bogota")
-                .questionId("123")
-                .position(8)
-                .userId("465")
-                .build();
 
 
-    }
 
-    @Test
-    void delete() {
-    }
 }

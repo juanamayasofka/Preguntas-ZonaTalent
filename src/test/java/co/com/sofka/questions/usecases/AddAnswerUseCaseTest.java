@@ -1,7 +1,54 @@
 package co.com.sofka.questions.usecases;
 
+import co.com.sofka.questions.controller.AnswerController;
+import co.com.sofka.questions.model.AnswerDTO;
+import co.com.sofka.questions.service.AnswerService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class AddAnswerUseCaseTest {
 
+    @Mock
+    private AnswerService answerService;
+
+    private WebTestClient client;
+
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        AnswerController router = new AnswerController(answerService);
+
+        this.client = WebTestClient.bindToController(router)
+                .configureClient().baseUrl("/answer").build();
+    }
+
+    @Test
+    void saveAnswer() {
+        AnswerDTO answerDTO = AnswerDTO.builder()
+                .id("1")
+                .answer("Bogota")
+                .questionId("123")
+                .position(8)
+                .userId("465")
+                .build();
+
+        when(answerService.saveAnswer(any(AnswerDTO.class))).thenReturn(Mono.just(answerDTO));
+
+        this.client.post().uri("/crear").bodyValue(answerDTO)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(AnswerDTO.class)
+                .isEqualTo(answerDTO);
+    }
 }
